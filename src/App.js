@@ -7,7 +7,6 @@ import Button from './components/Button/Button';
 import SearchIcon from '@material-ui/icons/Search';
 import TweetsContainer from './components/TweetsContainer/TweetsContainer';
 import Loader from './components/Loader/Loader';
-import Charter from './components/Chart/Chart';
 
 function App() {
   const [text, setText] = useState("");
