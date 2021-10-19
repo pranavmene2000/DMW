@@ -21,7 +21,7 @@ function Selecter({ ...props }) {
                 value={count}
                 onChange={handleChange}
             >
-                {[10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(c =>
+                {[10, 100, 200, 500, 1000, 1500].map(c =>
                     <option value={c}>{c}</option>
                 )}
             </Select>
