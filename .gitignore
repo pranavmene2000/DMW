@@ -1,3 +1,4 @@
 ./.env
+/env
 ./stanford140.csv
 ./__pycache__
