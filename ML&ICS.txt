@@ -1,0 +1,506 @@
+***[1]Linear Regression**************
+import pandas as pd
+import matplotlib.pyplot as plt
+
+dataset = pd.read_csv("C:\\Users\\Gaurav\\ML Practicals\\Assignment 1\\hours.csv")
+x=dataset.iloc[:,:-1].values
+y=dataset.iloc[:,1].values
+
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(x,y)
+Accuracy = regressor.score(x,y)*100
+print("Accuracy : ",Accuracy)
+
+y_pred = regressor.predict([[10]])
+print(y_pred)
+
+hr = int(input("Enter Hours :"))
+equation = regressor.coef_*hr+regressor.intercept_
+Y='%f*%f+%f' %(regressor.coef_,hr,regressor.intercept_)
+print("Y : ",Y)
+print("Risk Score : ",equation[0])
+
+plt.plot(x,y,'o')
+plt.plot(x,regressor.predict(x))
+plt.show()
+
+***[2]DecisionTree Classifier****************
+import pandas as pd
+import numpy as np
+
+#reading Dataset
+dataset=pd.read_csv("data.csv")
+X=dataset.iloc[:,:-1]
+y=dataset.iloc[:,5]
+
+#Perform Label encoding
+from sklearn.preprocessing import LabelEncoder
+le=LabelEncoder()
+
+X=X.apply(le.fit_transform)
+print("X")
+
+from sklearn.tree import DecisionTreeClassifier
+regressor=DecisionTreeClassifier()
+regressor.fit(X.iloc[:,1:5],y)
+
+#Predict value for the given Expression
+X_in=np.array([1,1,0,0])
+y_pred=regressor.predict([X_in])
+print("Prediction:", y_pred)
+
+from six import StringIO
+#from sklearn.externals.six import StringIO
+from IPython.display import Image
+from sklearn.tree import export_graphviz
+import pydotplus
+
+dot_data=StringIO()
+
+export_graphviz(regressor,out_file=dot_data,filled=True,rounded=True,special_characters=True)
+graph=pydotplus.graph_from_dot_data(dot_data.getvalue())
+graph.write_png('tree.png')
+
+***[3]KNN**************************
+import pandas as pd
+import numpy as np
+
+#Read dataset
+dataset=pd.read_csv("kdata.csv")
+X=dataset.iloc[:,:-1].values
+y=dataset.iloc[:,2].values
+
+#import KNeighborshood Classifier and create object of it
+from sklearn.neighbors import KNeighborsClassifier
+classifier=KNeighborsClassifier(n_neighbors=3)
+classifier.fit(X,y)
+
+#predict the class for the point(6,6)
+X_test=np.array([6,2])
+y_pred=classifier.predict([X_test])
+print('General KNN:',y_pred)
+
+classifier=KNeighborsClassifier(n_neighbors=3,weights='distance')
+classifier.fit(X,y)
+
+#predict the class for the point(6,6)
+X_test=np.array([6,2])
+y_pred=classifier.predict([X_test])
+print('Distance Weighted KNN:',y_pred)
+
+***[4]Clustering**********************
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+X = [[0.1,0.6],[0.15,0.71],[0.08,0.9],[0.16,0.85],[0.2,0.3],[0.25,0.5],[0.24,0.1],[0.3,0.2]]
+centers = np.array([[0.1,0.6],[0.3,0.2]])
+print("Initial Centroids:\n", centers)
+
+from sklearn.cluster import KMeans
+model = KMeans(n_clusters=2, init=centers, n_init=1)
+model.fit(X)
+print("Labels:",model.labels_)
+
+print('P6 belongs to cluster', model.labels_[5])
+
+print("Number of population around cluster 2: ", np.count_nonzero(model.labels_ == 1))
+
+print("New Centroids: \n", model.cluster_centers_)
+
+centers
+*******************************************************************************
+
+***[1]S-DES****************
+import pyDes
+from time import time
+
+# For Python3, you'll need to use bytes, i.e.:
+#key  -> Bytes containing the encryption key. 8 bytes for DES, 16 or 24 bytes
+#	 for Triple DES
+#mode -> Optional argument for encryption type, can be either pyDes.ECB
+#	(Electronic Code Book), pyDes.CBC (Cypher Block Chaining)
+#IV   -> Optional Initial Value bytes, must be supplied if using CBC mode.
+#	 Must be 8 bytes in length.
+#pad  -> Optional argument, set the pad character (PAD_NORMAL) to use
+#	 during all encrypt/decrypt operations done with this instance.
+#padmode -> Optional argument, set the padding mode (PAD_NORMAL or
+#	 PAD_PKCS5) to use during all encrypt/decrypt operations done
+#	 with this instance.
+data = input("Please enter plain text for encryption:")
+keystring=input("Enter 16/24 byte string for key generation:")
+k = pyDes.triple_des(keystring, padmode=pyDes.PAD_PKCS5)
+e = k.encrypt(data)
+print ("cipher text: %r" % e)
+#%r to be useful for printing a string of unknown encoding
+print ("plain text: %r" % k.decrypt(e))
+t1 = time()
+for i in range(1000):
+     e = k.encrypt(data)
+t2 = time()
+print("Elapsed time for 1,000 encryptions: {:0.3f}s".format(t2 - t1))
+
+
+*************OR******************
+from sys import exit
+from time import time
+ 
+KeyLength = 10
+SubKeyLength = 8
+DataLength = 8
+FLength = 4
+ 
+# Tables for initial and final permutations (b1, b2, b3, ... b8)
+IPtable = (2, 6, 3, 1, 4, 8, 5, 7)
+FPtable = (4, 1, 3, 5, 7, 2, 8, 6)
+ 
+# Tables for subkey generation (k1, k2, k3, ... k10)
+P10table = (3, 5, 2, 7, 4, 10, 1, 9, 8, 6)
+P8table = (6, 3, 7, 4, 8, 5, 10, 9)
+ 
+# Tables for the fk function
+EPtable = (4, 1, 2, 3, 2, 3, 4, 1)
+S0table = (1, 0, 3, 2, 3, 2, 1, 0, 0, 2, 1, 3, 3, 1, 3, 2)
+S1table = (0, 1, 2, 3, 2, 0, 1, 3, 3, 0, 1, 0, 2, 1, 0, 3)
+P4table = (2, 4, 3, 1)
+ 
+def perm(inputByte, permTable):
+    """Permute input byte according to permutation table"""
+    outputByte = 0
+    for index, elem in enumerate(permTable):
+        if index >= elem:
+            outputByte |= (inputByte & (128 >> (elem - 1))) >> (index - (elem - 1))
+        else:
+            outputByte |= (inputByte & (128 >> (elem - 1))) << ((elem - 1) - index)
+    return outputByte
+ 
+def ip(inputByte):
+    """Perform the initial permutation on data"""
+    return perm(inputByte, IPtable)
+ 
+def fp(inputByte):
+    """Perform the final permutation on data"""
+    return perm(inputByte, FPtable)
+ 
+def swapNibbles(inputByte):
+    """Swap the two nibbles of data"""
+    return (inputByte << 4 | inputByte >> 4) & 0xff
+ 
+def keyGen(key):
+    """Generate the two required subkeys"""
+    def leftShift(keyBitList):
+        """Perform a circular left shift on the first and second five bits"""
+        shiftedKey = [None] * KeyLength
+        shiftedKey[0:9] = keyBitList[1:10]
+        shiftedKey[4] = keyBitList[0]
+        shiftedKey[9] = keyBitList[5]
+        return shiftedKey
+ 
+    # Converts input key (integer) into a list of binary digits
+    keyList = [(key & 1 << i) >> i for i in reversed(range(KeyLength))]
+    permKeyList = [None] * KeyLength
+    for index, elem in enumerate(P10table):
+        permKeyList[index] = keyList[elem - 1]
+    shiftedOnceKey = leftShift(permKeyList)
+    shiftedTwiceKey = leftShift(leftShift(shiftedOnceKey))
+    subKey1 = subKey2 = 0
+    for index, elem in enumerate(P8table):
+        subKey1 += (128 >> index) * shiftedOnceKey[elem - 1]
+        subKey2 += (128 >> index) * shiftedTwiceKey[elem - 1]
+    return (subKey1, subKey2)
+ 
+def fk(subKey, inputData):
+    """Apply Feistel function on data with given subkey"""
+    def F(sKey, rightNibble):
+        aux = sKey ^ perm(swapNibbles(rightNibble), EPtable)
+        index1 = ((aux & 0x80) >> 4) + ((aux & 0x40) >> 5) + \
+                 ((aux & 0x20) >> 5) + ((aux & 0x10) >> 2)
+        index2 = ((aux & 0x08) >> 0) + ((aux & 0x04) >> 1) + \
+                 ((aux & 0x02) >> 1) + ((aux & 0x01) << 2)
+        sboxOutputs = swapNibbles((S0table[index1] << 2) + S1table[index2])
+        return perm(sboxOutputs, P4table)
+ 
+    leftNibble, rightNibble = inputData & 0xf0, inputData & 0x0f
+    return (leftNibble ^ F(subKey, rightNibble)) | rightNibble
+ 
+def encrypt(key, plaintext):
+    """Encrypt plaintext with given key"""
+    data = fk(keyGen(key)[0], ip(plaintext))
+    return fp(fk(keyGen(key)[1], swapNibbles(data)))
+ 
+def decrypt(key, ciphertext):
+    """Decrypt ciphertext with given key"""
+    data = fk(keyGen(key)[1], ip(ciphertext))
+    return fp(fk(keyGen(key)[0], swapNibbles(data)))  
+ 
+if __name__ == '__main__':
+    try:
+        assert encrypt(0b0000000000, 0b10101010) == 0b00010001
+    except AssertionError:
+        print("Error on encrypt:")
+        print("Output: ", encrypt(0b0000000000, 0b10101010), "Expected: ", 0b00010001)
+        exit(1)
+    try:
+        assert encrypt(0b1110001110, 0b10101010) == 0b11001010
+    except AssertionError:
+        print("Error on encrypt:")
+        print("Output: ", encrypt(0b1110001110, 0b10101010), "Expected: ", 0b11001010)
+        exit(1)
+    try:
+        assert encrypt(0b1110001110, 0b01010101) == 0b01110000
+    except AssertionError:
+        print("Error on encrypt:")
+        print("Output: ", encrypt(0b1110001110, 0b01010101), "Expected: ", 0b01110000)
+        exit(1)
+    try:
+        assert encrypt(0b1111111111, 0b10101010) == 0b00000100
+    except AssertionError:
+        print("Error on encrypt:")
+        print("Output: ", encrypt(0b1111111111, 0b10101010), "Expected: ", 0b00000100)
+        exit(1)
+ 
+    t1 = time()
+    for i in range(1000):
+        encrypt(0b1110001110, 0b10101010)
+    t2 = time()
+    print("Elapsed time for 1,000 encryptions: {:0.3f}s".format(t2 - t1))
+    exit
+
+***[2]S-AES********************************************
+from Crypto.Cipher import AES
+
+#key has to be either 16, 24 or 32 bytes
+def paddedKey(key):
+    while len(key) % 8 !=0:
+        key +=' '
+    return key
+    
+#text has to in multiples of 26 bytes
+def paddedText(text):
+    while len(text) % 16 != 0:
+        text += ' '
+    return text
+        
+plain_input = input("Enter the text to be encrypted: ")
+plain = paddedText(plain_input)
+ 
+key_input = input("Enter in a key between 16 and 32 characters: ")
+key = paddedKey(key_input)
+ 
+if(len(key_input)< 16 & len(key_input)> 32):
+ print("key must be between 16 and 32 characters!")
+ 
+cipher = AES.new(key)
+ciphertext = cipher.encrypt(plain)
+print(ciphertext)
+ 
+cleartext = cipher.decrypt(ciphertext)
+print(cleartext)
+
+**********************OR***********************************
+import sys
+ 
+# S-Box
+sBox  = [0x9, 0x4, 0xa, 0xb, 0xd, 0x1, 0x8, 0x5,
+         0x6, 0x2, 0x0, 0x3, 0xc, 0xe, 0xf, 0x7]
+ 
+# Inverse S-Box
+sBoxI = [0xa, 0x5, 0x9, 0xb, 0x1, 0x7, 0x8, 0xf,
+         0x6, 0x0, 0x2, 0x3, 0xc, 0x4, 0xd, 0xe]
+ 
+# Round keys: K0 = w0 + w1; K1 = w2 + w3; K2 = w4 + w5
+w = [None] * 6
+ 
+def mult(p1, p2):
+    """Multiply two polynomials in GF(2^4)/x^4 + x + 1"""
+    p = 0
+    while p2:
+        if p2 & 0b1:
+            p ^= p1
+        p1 <<= 1
+        if p1 & 0b10000:
+            p1 ^= 0b11
+        p2 >>= 1
+    return p & 0b1111
+ 
+def intToVec(n):
+    """Convert a 2-byte integer into a 4-element vector"""
+    return [n >> 12, (n >> 4) & 0xf, (n >> 8) & 0xf,  n & 0xf]            
+ 
+def vecToInt(m):
+    """Convert a 4-element vector into 2-byte integer"""
+    return (m[0] << 12) + (m[2] << 8) + (m[1] << 4) + m[3]
+ 
+def addKey(s1, s2):
+    """Add two keys in GF(2^4)"""  
+    return [i ^ j for i, j in zip(s1, s2)]
+     
+def sub4NibList(sbox, s):
+    """Nibble substitution function"""
+    return [sbox[e] for e in s]
+     
+def shiftRow(s):
+    """ShiftRow function"""
+    return [s[0], s[1], s[3], s[2]]
+ 
+def keyExp(key):
+    """Generate the three round keys"""
+    def sub2Nib(b):
+        """Swap each nibble and substitute it using sBox"""
+        return sBox[b >> 4] + (sBox[b & 0x0f] << 4)
+ 
+    Rcon1, Rcon2 = 0b10000000, 0b00110000
+    w[0] = (key & 0xff00) >> 8
+    w[1] = key & 0x00ff
+    w[2] = w[0] ^ Rcon1 ^ sub2Nib(w[1])
+    w[3] = w[2] ^ w[1]
+    w[4] = w[2] ^ Rcon2 ^ sub2Nib(w[3])
+    w[5] = w[4] ^ w[3]
+ 
+def encrypt(ptext):
+    """Encrypt plaintext block"""
+    def mixCol(s):
+        return [s[0] ^ mult(4, s[2]), s[1] ^ mult(4, s[3]),
+                s[2] ^ mult(4, s[0]), s[3] ^ mult(4, s[1])]    
+     
+    state = intToVec(((w[0] << 8) + w[1]) ^ ptext)
+    state = mixCol(shiftRow(sub4NibList(sBox, state)))
+    state = addKey(intToVec((w[2] << 8) + w[3]), state)
+    state = shiftRow(sub4NibList(sBox, state))
+    return vecToInt(addKey(intToVec((w[4] << 8) + w[5]), state))
+     
+def decrypt(ctext):
+    """Decrypt ciphertext block"""
+    def iMixCol(s):
+        return [mult(9, s[0]) ^ mult(2, s[2]), mult(9, s[1]) ^ mult(2, s[3]),
+                mult(9, s[2]) ^ mult(2, s[0]), mult(9, s[3]) ^ mult(2, s[1])]
+     
+    state = intToVec(((w[4] << 8) + w[5]) ^ ctext)
+    state = sub4NibList(sBoxI, shiftRow(state))
+    state = iMixCol(addKey(intToVec((w[2] << 8) + w[3]), state))
+    state = sub4NibList(sBoxI, shiftRow(state))
+    return vecToInt(addKey(intToVec((w[0] << 8) + w[1]), state))
+ 
+if __name__ == '__main__':
+     
+    plaintext = 0b1101011100101000
+    key = 0b0100101011110101
+    ciphertext = 0b0010010011101100
+    keyExp(key)
+    try:
+        assert encrypt(plaintext) == ciphertext
+    except AssertionError:
+        print("Encryption error")
+        print(encrypt(plaintext), ciphertext)
+        sys.exit(1)
+    try:
+        assert decrypt(ciphertext) == plaintext
+    except AssertionError:
+        print("Decryption error")
+        print(decrypt(ciphertext), plaintext)
+        sys.exit(1)
+    print("Test ok!")
+    sys.exit
+
+***[3]Diffie-Hellman****************************************
+#Diffie Hellman Key Exchange Alogorithm
+sharedPrime = int(input("Enter shared Prime(n):"))
+sharedBase = int(input("Enter shared Base(g):"))
+aliceSecret = int(input("Enter Alice Secret Key(x):"))
+bobSecret = int(input("Enter Bob Secret Key(y):"))
+print( "Publicly Shared Variables:")
+print( "    Publicly Shared Prime: " , sharedPrime )
+print( "    Publicly Shared Base:  " , sharedBase )
+ 
+# Alice Sends Bob A = g^x mod n
+A = (sharedBase**aliceSecret) % sharedPrime
+print( "\n  Alice Sends(A) Over Public Chanel: " , A )
+ 
+# Bob Sends Alice B = g^y mod n
+B = (sharedBase ** bobSecret) % sharedPrime
+print("Bob Sends(B) Over Public Chanel: ", B )
+ 
+print( "\n------------\n" )
+print( "Privately Calculated Shared Secret:" )
+# Alice Computes Shared Secret: K1 = B^x mod n
+aliceSharedSecret = (B ** aliceSecret) % sharedPrime
+print( "    Alice Shared Secret: ", aliceSharedSecret )
+ 
+# Bob Computes Shared Secret: K2 = A^y mod n
+bobSharedSecret = (A**bobSecret) % sharedPrime
+print( "    Bob Shared Secret: ", bobSharedSecret )
+
+
+***[4]RSA***************************************************
+def gcd(a, b): # calculates GCD of a and d
+    while b != 0:
+        c = a % b
+        a = b
+        b = c
+    return a
+
+
+def modinv(a, m): # calculates modulo inverse of a for mod m
+    for x in range(1, m):
+        if (a * x) % m == 1:
+            return x
+    return None
+
+
+def coprimes(a): # calculates all possible co-prime numbers with a
+    l = []
+    for x in range(2, a):
+        if gcd(a, x) == 1 and modinv(x, phi) != None:
+            l.append(x)
+    for x in l:
+        if x == modinv(x, phi):
+            l.remove(x)
+    return l
+
+def encrypt_block(m): # encrypts a single block
+    c = m ** e % n
+    return c
+
+
+def decrypt_block(c): # decrypts a single block
+    m = c ** d % n
+    return m
+
+
+def encrypt_string(s): # applies encryption
+    return ''.join([chr(encrypt_block(ord(x))) for x in list(s)])
+
+
+def decrypt_string(s): # applies decryption
+    return ''.join([chr(decrypt_block(ord(x))) for x in list(s)])
+
+if __name__ == "__main__":
+    p = int(input('Enter prime p: '))
+    q = int(input('Enter prime q: '))
+
+    print("Choosen primes:\np=" + str(p) + ", q=" + str(q) + "\n")
+
+    n = p * q
+    print("n = p * q = " + str(n) + "\n")
+
+    phi = (p - 1) * (q - 1)
+    print("Euler's function (totient) [phi(n)]: " + str(phi) + "\n")
+
+    print("Choose an e from a below coprimes array:\n")
+    print(str(coprimes(phi)) + "\n")
+    e = int(input())
+
+    d = modinv(e, phi) # calculates the decryption key d
+
+    print("\nYour public key is a pair of numbers (e=" + str(e) + ", n=" + str(n) + ").\n")
+    print("Your private key is a pair of numbers (d=" + str(d) + ", n=" + str(n) + ").\n")
+
+    s = input("Enter a message to encrypt: ")
+    print("\nPlain message: " + s + "\n")
+    enc = encrypt_string(s)
+    print("Encrypted message: ", enc, "\n")
+    dec = decrypt_string(enc)
+    print("Decrypted message: " + dec + "\n")                        
+
+*************************************************************************************
